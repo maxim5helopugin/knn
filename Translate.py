@@ -5,6 +5,8 @@ from Data_svhn import readsvhn
 from Data_heart import readheart
 from Data_mice import readmice
 import timeit
+from RPT import Tree
+from search import guided_search
 
 import numpy as np
 
@@ -15,7 +17,7 @@ def distance(x1, x2):
 # Alias the countours of the dataset
 def alias(dataset):
 	for i in range(0, len(dataset)):
-		for j in range(0, len(dataset[i])-1):
+		for j in range(1, len(dataset[i])-1):
 			dataset[i,j] += dataset[i, j+1]*0.1
 	return dataset
 
@@ -31,7 +33,7 @@ def accuracy(correct, size):
 	return correct/size;
 
 # Run a test case
-def run(testcase, do_alias = False):
+def run(testcase, do_alias = False, tree = False):
 	# Tests
 	start = timeit.default_timer()
 	if testcase=="mnist":
@@ -51,9 +53,21 @@ def run(testcase, do_alias = False):
 
 	correct = 0
 
+	if tree:
+		subset = Tree(data, labels,  100)
+		vectors = []
+		for i in range(0,subset.m):
+			vectors.append(subset.make_rand_vector(len(data[0])))
+
 	for i in range(0,len(test_data)):
+
 		if i%100==0:
 			print(i, end=" ")
+
+		if tree:
+			data, labels = guided_search(subset, test_data[i], 3, vectors)
+			data = np.array(data)
+			labels = np.array(labels)
 
 		if labels[closest(test_data[i], data)] == test_labels[i]:
 			correct+=1
@@ -69,7 +83,8 @@ def run(testcase, do_alias = False):
 #run("mnist", True)
 #run("svhn")
 #run("svhn", True)
-run("heart")
-run("heart", True)
-run("mice")
-run("mice", True)
+run("heart", tree=True)
+run("heart", True, tree = True)
+run("mice", tree = True)
+run("mice", True, tree = True)
+run("mnist", tree = True)

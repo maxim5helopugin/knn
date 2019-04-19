@@ -4,18 +4,20 @@ from search import guided_search
 
 # Random Projection Tree
 class Tree:
-	def __init__(self, S, n):
-		self.c = 2
-		self.m = 3
+	def __init__(self, S, labels, n):
+		self.c = 5
+		self.m = 10
 		self.n = n
 		self.left = None
 		self.right = None
 		self.data = None
 		self.isleaf = False
+		self.labels = None
 
 # If the size of the set is less than leaf size, return the leaf
 		if len(S)<=self.n:
 			self.data = S
+			self.labels = labels
 			self.isleaf = True
 			return
 
@@ -32,6 +34,7 @@ class Tree:
 		projections = []
 		self.direction = self.make_rand_vector(len(S[0]))
 		S = np.array(S)
+		labels = np.array(labels)
 		
 # Separate the points into different projections, get the median
 		for point in S:
@@ -42,11 +45,17 @@ class Tree:
 		rights = np.where(projections>=self.median)
 		lefts = np.where(projections<self.median)
 
+		right_l = labels[rights]
+		left_l = labels[lefts]
+
 		## Does not actually get c closest points,
 		## might need fix
 # Get the closest points to the median
 		self.air = rights[0][0:self.c]
 		self.ail = lefts[0][0:self.c]
+
+		self.air_l = right_l[0:self.c]
+		self.ail_l = left_l[0:self.c]
 
 # Populate the guiding matricies
 		for i in range(0,self.c):
@@ -57,9 +66,12 @@ class Tree:
 			for j in range(0,self.m):
 				self.matrix_right[i][j] = np.dot(self.vectors[j],S[self.air[i]])
 
+		self.air = S[self.air]
+		self.ail = S[self.ail]
+
 # Assign the left and right subtrees
-		self.left = Tree(S[lefts], self.n)
-		self.right = Tree(S[rights], self.n)
+		self.left = Tree(S[lefts], left_l, self.n)
+		self.right = Tree(S[rights], right_l, self.n)
 
 # Return the random vector with given dim
 	def make_rand_vector(self, dims):
@@ -79,6 +91,7 @@ class Tree:
 	def print(self):
 		if(self.left == None and self.right == None):
 			print(self.data)
+			print(self.labels)
 			return
 		print("left")
 		self.left.print()
@@ -86,12 +99,3 @@ class Tree:
 		self.right.print()
 				
 #########################################################	
-points = [[-1,1],[-1,3],[1,2],[2,1],[3,-1],[2,-3],[-2,-2]]
-tree = Tree(points, 3)
-tree.print()
-
-vectors = []
-for i in range(0,tree.m):
-	vectors.append(tree.make_rand_vector(len(points[0])))
-
-guided_search(tree, [-1,1], 1, vectors)

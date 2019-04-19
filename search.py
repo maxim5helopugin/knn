@@ -2,7 +2,7 @@ from queue import PriorityQueue
 import numpy as np
 
 def priority(U, v, q):
-	return 1 / np.linalg.norm(v - np.dot(U,q))
+	return np.linalg.norm(v - np.dot(U,q))
 
 def distance(x, q):
 	return np.linalg.norm(x-q)
@@ -10,8 +10,11 @@ def distance(x, q):
 def guided_search(root, q, t, vectors):
 	C_q = []
 	B = [] # needs to be bst
+	B_l = []
 	A = None
 	ai = None
+	ai_l = None
+	L_q = []
 		
 	P = PriorityQueue()
 	count = 0
@@ -23,15 +26,17 @@ def guided_search(root, q, t, vectors):
 # Current node = root 
 	current_node = root
 
-	if t > 0:
+	while t > 0:
 		while not current_node.isleaf:
 			if np.dot(current_node.direction, q) < current_node.median:
 				A = current_node.matrix_right
 				ai = current_node.air
-				current_node = root.left
+				ai_l = current_node.air_l
+				current_node = current_node.left
 			else:
-				A = current_node.matrix_right
+				A = current_node.matrix_left
 				ai = current_node.ail
+				ai_l = current_node.ail_l
 				current_node = current_node.right
 
 # Calculate priority value, set count ++
@@ -47,18 +52,27 @@ def guided_search(root, q, t, vectors):
 # Set the tree with counts and indecies of points
 			for index in a:
 				B.append((ai[index],count))
+				B_l.append((ai_l[index], count))
 
 # Create a structire with count and put it into queue with priority
-			structure = (count,current_node)
-			P.put((priority_value, structure))
-		leaf_q = current_node.data		# needs to be indecies, but is not
-		for point in leaf_q:
+			P.put((priority_value, (count,current_node)))
+
+		for point in current_node.data:
 			C_q.append(point)
+
+		for label in current_node.labels:
+			L_q.append(label)
+
 		t = t - 1
 
-		temp = P.get() # needs to be priority in dec order
+		temp = P.get()
 		current_node = temp[1][1] 
+
 		B = [x for x in B if x[1] != temp[1][0]]
-	for point in B:
-		C_q.append(point)
-	return C_q
+		B_l = [x for x in B_l if x[1] != temp[1][0]]
+
+	for i in range(0, len(B)):
+		C_q.append(B[i][0])
+		L_q.append(B_l[i][0])
+
+	return np.stack(C_q), np.array(L_q)
