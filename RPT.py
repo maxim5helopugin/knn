@@ -1,8 +1,11 @@
+# Maxim Shelopugin
+#
+# Random Projection Tree class
+
 import numpy as np 
 from random import gauss
 from search import guided_search
 
-# Random Projection Tree
 class Tree:
 	def __init__(self, S, labels, n):
 		self.c = 5
@@ -33,6 +36,8 @@ class Tree:
 # Generate the random projection
 		projections = []
 		self.direction = self.make_rand_vector(len(S[0]))
+
+# convert data and labels to arrays
 		S = np.array(S)
 		labels = np.array(labels)
 		
@@ -45,11 +50,10 @@ class Tree:
 		rights = np.where(projections>=self.median)
 		lefts = np.where(projections<self.median)
 
+# Separate labels as well
 		right_l = labels[rights]
 		left_l = labels[lefts]
 
-		## Does not actually get c closest points,
-		## might need fix
 # Get the closest points to the median
 		self.air = rights[0][0:self.c]
 		self.ail = lefts[0][0:self.c]
@@ -66,6 +70,7 @@ class Tree:
 			for j in range(0,self.m):
 				self.matrix_right[i][j] = np.dot(self.vectors[j],S[self.air[i]])
 
+# Set the matricies as datapoints rather than indecies
 		self.air = S[self.air]
 		self.ail = S[self.ail]
 
@@ -97,5 +102,3 @@ class Tree:
 		self.left.print()
 		print("right")
 		self.right.print()
-				
-#########################################################	

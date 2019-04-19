@@ -1,5 +1,7 @@
-# Test Script for vanila KNN
-# Linear Search
+# Maxim Shelopugin
+#
+# Script that runs all the datasets on vanila knn, aliased knn and tree knn
+
 from Data_mnist import readmnist
 from Data_svhn import readsvhn
 from Data_heart import readheart
@@ -17,8 +19,9 @@ def distance(x1, x2):
 # Alias the countours of the dataset
 def alias(dataset):
 	for i in range(0, len(dataset)):
-		for j in range(1, len(dataset[i])-1):
-			dataset[i,j] += dataset[i, j+1]*0.1
+		for j in range(0, len(dataset[i])- 1):
+			if dataset[i, j] == 0:
+				dataset[i, j] = dataset[i, j+1]/2;
 	return dataset
 
 # Distance calculation
@@ -53,6 +56,8 @@ def run(testcase, do_alias = False, tree = False):
 
 	correct = 0
 
+	print(testcase)
+
 	if tree:
 		subset = Tree(data, labels,  100)
 		vectors = []
@@ -60,9 +65,6 @@ def run(testcase, do_alias = False, tree = False):
 			vectors.append(subset.make_rand_vector(len(data[0])))
 
 	for i in range(0,len(test_data)):
-
-		if i%100==0:
-			print(i, end=" ")
 
 		if tree:
 			data, labels = guided_search(subset, test_data[i], 3, vectors)
@@ -74,17 +76,15 @@ def run(testcase, do_alias = False, tree = False):
 
 	print()
 	print(accuracy(correct, len(test_data)))
-	print("--------------")
 	stop = timeit.default_timer()
 	print("took ", stop-start, "seconds")
 	print("--------------\n")
 
-#run("mnist")
-#run("mnist", True)
-#run("svhn")
-#run("svhn", True)
 run("heart", tree=True)
 run("heart", True, tree = True)
 run("mice", tree = True)
 run("mice", True, tree = True)
 run("mnist", tree = True)
+run("mnist", True, tree = True)
+run("svhn", tree = True)
+run("svhn", True, tree = True)

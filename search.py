@@ -1,15 +1,22 @@
+# Maxim Shelopugin
+#
+# Prioritiezed search with auxiliary information
+
 from queue import PriorityQueue
 import numpy as np
 
+# Calculate the priority
 def priority(U, v, q):
 	return np.linalg.norm(v - np.dot(U,q))
 
+# Get the distance between two vectors
 def distance(x, q):
 	return np.linalg.norm(x-q)
 
+# Search method
 def guided_search(root, q, t, vectors):
 	C_q = []
-	B = [] # needs to be bst
+	B = []
 	B_l = []
 	A = None
 	ai = None
@@ -19,6 +26,7 @@ def guided_search(root, q, t, vectors):
 	P = PriorityQueue()
 	count = 0
 	q_not = []
+
 # Get independent random vectors, create a set q_not
 	for vector in vectors:
 		q_not.append(np.dot(vector,q))
@@ -26,6 +34,7 @@ def guided_search(root, q, t, vectors):
 # Current node = root 
 	current_node = root
 
+# Do t iterations
 	while t > 0:
 		while not current_node.isleaf:
 			if np.dot(current_node.direction, q) < current_node.median:
@@ -65,12 +74,14 @@ def guided_search(root, q, t, vectors):
 
 		t = t - 1
 
+# Prune out the nodes which do not add any info
 		temp = P.get()
 		current_node = temp[1][1] 
 
 		B = [x for x in B if x[1] != temp[1][0]]
 		B_l = [x for x in B_l if x[1] != temp[1][0]]
 
+# Get the set of all candidates
 	for i in range(0, len(B)):
 		C_q.append(B[i][0])
 		L_q.append(B_l[i][0])
