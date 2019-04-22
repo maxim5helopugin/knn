@@ -15,15 +15,16 @@ def distance(x, q):
 
 # Search method
 def guided_search(root, q, t, vectors):
-	C_q = []
-	B = []
-	B_l = []
-	A = None
-	ai = None
-	ai_l = None
-	L_q = []
+	target_set = []
+	target_labels = []
+	rpt_set = []
+	rpt_set_labels = []
+	matrix = None
+	proxy = None
+	proxy_labels = None
+	
 		
-	P = PriorityQueue()
+	priority_queue = PriorityQueue()
 	count = 0
 	q_not = []
 
@@ -38,52 +39,52 @@ def guided_search(root, q, t, vectors):
 	while t > 0:
 		while not current_node.isleaf:
 			if np.dot(current_node.direction, q) < current_node.median:
-				A = current_node.matrix_right
-				ai = current_node.air
-				ai_l = current_node.air_l
+				matrix = current_node.matrix_right
+				proxy = current_node.air
+				proxy_labels = current_node.air_l
 				current_node = current_node.left
 			else:
-				A = current_node.matrix_left
-				ai = current_node.ail
-				ai_l = current_node.ail_l
+				matrix = current_node.matrix_left
+				proxy = current_node.ail
+				proxy_labels = current_node.ail_l
 				current_node = current_node.right
 
 # Calculate priority value, set count ++
 			count = count + 1
 			priority_value = priority(root.direction, root.median, q)
 
-# Sort the rows of A in increasing order according to distance from q_not and let a have sorted indecies
+# Sort the rows of matrix in increasing order according to distance from q_not and let a have sorted indecies
 			distnaces = []
-			for i in A:
+			for i in matrix:
 				distnaces.append(distance(i, q_not))
 			a = [i[0] for i in sorted(enumerate(distnaces), key=lambda x:x[1])]
 
 # Set the tree with counts and indecies of points
 			for index in a:
-				B.append((ai[index],count))
-				B_l.append((ai_l[index], count))
+				rpt_set.append((proxy[index],count))
+				rpt_set_labels.append((proxy_labels[index], count))
 
 # Create a structire with count and put it into queue with priority
-			P.put((priority_value, (count,current_node)))
+			priority_queue.put((priority_value, (count,current_node)))
 
 		for point in current_node.data:
-			C_q.append(point)
+			target_set.append(point)
 
 		for label in current_node.labels:
-			L_q.append(label)
+			target_labels.append(label)
 
 		t = t - 1
 
 # Prune out the nodes which do not add any info
-		temp = P.get()
+		temp = priority_queue.get()
 		current_node = temp[1][1] 
 
-		B = [x for x in B if x[1] != temp[1][0]]
-		B_l = [x for x in B_l if x[1] != temp[1][0]]
+		rpt_set = [x for x in rpt_set if x[1] != temp[1][0]]
+		rpt_set_labels = [x for x in rpt_set_labels if x[1] != temp[1][0]]
 
 # Get the set of all candidates
-	for i in range(0, len(B)):
-		C_q.append(B[i][0])
-		L_q.append(B_l[i][0])
+	for i in range(0, len(rpt_set)):
+		target_set.append(rpt_set[i][0])
+		target_labels.append(rpt_set_labels[i][0])
 
-	return np.stack(C_q), np.array(L_q)
+	return np.stack(target_set), np.array(target_labels)

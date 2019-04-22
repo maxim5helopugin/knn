@@ -74,17 +74,27 @@ def run(testcase, do_alias = False, tree = False):
 		if labels[closest(test_data[i], data)] == test_labels[i]:
 			correct+=1
 
-	print()
 	print(accuracy(correct, len(test_data)))
 	stop = timeit.default_timer()
 	print("took ", stop-start, "seconds")
 	print("--------------\n")
 
+run("heart")
+run("heart", True)
 run("heart", tree=True)
 run("heart", True, tree = True)
+
+run("mice")
+run("mice", True)
 run("mice", tree = True)
 run("mice", True, tree = True)
+
+run("mnist")
+run("mnist", True)
 run("mnist", tree = True)
 run("mnist", True, tree = True)
+
+run("svhn")
+run("svhn", True)
 run("svhn", tree = True)
 run("svhn", True, tree = True)

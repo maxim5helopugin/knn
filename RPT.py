@@ -6,10 +6,11 @@ import numpy as np
 from random import gauss
 from search import guided_search
 
+# Tree class 
 class Tree:
 	def __init__(self, S, labels, n):
-		self.c = 5
-		self.m = 10
+		self.c = 10
+		self.m = 20
 		self.n = n
 		self.left = None
 		self.right = None
